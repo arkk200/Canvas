@@ -9,10 +9,10 @@ const mouse = {
   y: innerHeight / 2
 }
 
-let gravity = 1;
-let friction = 0.94;
-
 const colors = ['#2185C5', '#7ECEFD', '#FFF6E5', '#FF7F66']
+
+let gravity = 1;
+let friction = 0.8;
 
 // Event Listeners
 addEventListener('mousemove', (event) => {
@@ -26,6 +26,10 @@ addEventListener('resize', () => {
 
   init()
 });
+
+addEventListener('click', () => {
+  init();
+})
 
 function randomIntFromRange(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min)
@@ -63,8 +67,8 @@ class Ball {
 
   update() {
     // if(...) { ...this.y = canvas.height - this.radius; 바닥에서 튕기지 않고 떠는 현상 방지 }
-    if(this.y + this.radius > canvas.height) { this.dy *= -friction; this.y = canvas.height - this.radius; }
-    else this.dy += gravity; // this is a magic code that make gravity!
+    if(this.y + this.radius > canvas.height) { this.dy *= -(friction); this.y = canvas.height - this.radius; }
+    this.dy += gravity; // this is a magic code that make gravity!
     if(this.x + this.radius > canvas.width || this.x - this.radius < 0) this.dx *= -1;
     this.x += this.dx;
     this.y += this.dy;
@@ -75,14 +79,16 @@ class Ball {
 // Implementation
 let ball;
 let ballArray = [];
-let radius = 30;
 function init() {
-  ball = new Ball(canvas.width/2, canvas.height/2, 2, radius, 'red');
-  for(let i = 0; i < 500; i++){
+  ballArray = []
+  for(let i = 0; i < 400; i++){
+    let radius = randomIntFromRange(10, 13);
     let x = randomIntFromRange(radius, canvas.width - radius);
     let y = randomIntFromRange(0, canvas.height - radius);
     let dx = randomIntFromRange(-2, 2);
-    ballArray.push(new Ball(x, y, dx, 2, 30, 'red'));
+    let dy = randomIntFromRange(-2, 2);
+    let color = randomColor(colors)
+    ballArray.push(new Ball(x, y, dx, dy, radius, color));
   }
 }
 // Animation Loop
