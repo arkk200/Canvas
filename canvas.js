@@ -47,3 +47,12 @@ c.arc(300, 300, 30, 0, Math.PI * 2, false);
 c.strokeStyle = "blue"; // 색상은 stroke() 매서드가 호출되기 전까지 정해줘도 된다.
 // arc매서드도 마찬가지로 stroke() 매서드를 호츌해야 캔버스에 그릴 수 있다.
 c.stroke();
+
+c.strokeStyle = "red";
+for(let i = 0; i < 100; i++){
+    let x = Math.random() * window.innerWidth; // 웹 브라우저 너비만큼 곱함
+    let y = Math.random() * window.innerHeight; // 웹 브라우저 높이만큼 곱함
+    c.beginPath();
+    c.arc(x, y, 30, 0, Math.PI * 2, false);
+    c.stroke();
+}
