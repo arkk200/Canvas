@@ -26,6 +26,17 @@ window.addEventListener('mousemove', event => {
     console.log(mouse);
 });
 
+window.addEventListener('resize', () => {
+    /*
+    window의 resize 이벤트를 감지하고 canvas의 크기를 변경하려면
+    위에서 정의했던 canvas의 너비, 높이를 다시 정의해주면 된다.
+    */
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    setCircles(); // 사이즈가 줄어들 때 몇몇의 원들이 창 밖으로 나가는 현상을 방지하기위해 원들을 재생성함
+});
+
 function Circle(x, y, dx, dy, radius) { // 원 클래스
     this.x = x;
     this.y = y;
@@ -60,15 +71,21 @@ function Circle(x, y, dx, dy, radius) { // 원 클래스
 }
 
 let circleArray = []; // 원 여러개를 저장하는 배열
+let circleNumber = 1200;
 
-for(let i = 0; i < 1000; i++){ // 원을 여러개 생성함
-    // 원이 생성될 때마다 각각 랜덤함 값을 줌
-    let radius = Math.random() * 3 + 1; // 반지름에 랜덤값을 줌
-    let x = Math.random() * (innerWidth - radius * 2) + radius; // 위치에 랜덤값을 줌
-    let y = Math.random() * (innerHeight - radius * 2) + radius;
-    let dx = (Math.random() - 0.5) * 5; // 방향(부호) 및 속도(절댓값)에 랜덤값을 줌
-    let dy = (Math.random() - 0.5) * 5;
-    circleArray.push(new Circle(x, y, dx, dy, radius));
+setCircles();
+
+function setCircles() {
+    circleArray = [];
+    for(let i = 0; i < circleNumber; i++){ // 원을 여러개 생성함
+        // 원이 생성될 때마다 각각 랜덤함 값을 줌
+        let radius = Math.random() * 3 + 1; // 반지름에 랜덤값을 줌
+        let x = Math.random() * (innerWidth - radius * 2) + radius; // 위치에 랜덤값을 줌
+        let y = Math.random() * (innerHeight - radius * 2) + radius;
+        let dx = (Math.random() - 0.5) * 5; // 방향(부호) 및 속도(절댓값)에 랜덤값을 줌
+        let dy = (Math.random() - 0.5) * 5;
+        circleArray.push(new Circle(x, y, dx, dy, radius));
+    }
 }
 
 function animate() {
