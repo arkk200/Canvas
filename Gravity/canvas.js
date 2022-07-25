@@ -44,9 +44,10 @@ function distance(x1, y1, x2, y2) {
 
 // Objects
 class Ball {
-  constructor(x, y, dy, radius, color) {
+  constructor(x, y, dx, dy, radius, color) {
     this.x = x
     this.y = y
+    this.dx = dx
     this.dy = dy;
     this.radius = radius
     this.color = color
@@ -64,6 +65,8 @@ class Ball {
     // if(...) { ...this.y = canvas.height - this.radius; 바닥에서 튕기지 않고 떠는 현상 방지 }
     if(this.y + this.radius > canvas.height) { this.dy *= -friction; this.y = canvas.height - this.radius; }
     else this.dy += gravity; // this is a magic code that make gravity!
+    if(this.x + this.radius > canvas.width || this.x - this.radius < 0) this.dx *= -1;
+    this.x += this.dx;
     this.y += this.dy;
     this.draw()
   }
@@ -72,11 +75,14 @@ class Ball {
 // Implementation
 let ball;
 let ballArray = [];
+let radius = 30;
 function init() {
-  ball = new Ball(canvas.width/2, canvas.height/2, 2, 30, 'red');
+  ball = new Ball(canvas.width/2, canvas.height/2, 2, radius, 'red');
   for(let i = 0; i < 500; i++){
-    let x = 
-    ballArray.push(new Ball());
+    let x = randomIntFromRange(radius, canvas.width - radius);
+    let y = randomIntFromRange(0, canvas.height - radius);
+    let dx = randomIntFromRange(-2, 2);
+    ballArray.push(new Ball(x, y, dx, 2, 30, 'red'));
   }
 }
 // Animation Loop
@@ -84,7 +90,9 @@ function animate() {
   requestAnimationFrame(animate)
   c.clearRect(0, 0, canvas.width, canvas.height)
 
-  ball.update();
+  for (let i = 0; i < ballArray.length; i++) {
+    ballArray[i].update();
+  }
   // objects.forEach(object => {
   //  object.update()
   // })
