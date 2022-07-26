@@ -9,7 +9,7 @@ const mouse = {
   y: innerHeight / 2
 }
 
-const colors = ['#2185C5', '#7ECEFD', '#FFF6E5', '#FF7F66']
+const colors = ['#2185C5', '#7ECEFD', '#FF7F66']
 
 // Event Listeners
 addEventListener('mousemove', (event) => {
@@ -96,12 +96,23 @@ class Particle {
     this.radius = radius
     this.color = color
     this.mass = 1
+    this.opacity = 0;
   }
 
   draw() {
     c.beginPath()
-    c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false)
-    c.strokeStyle = this.color
+    c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+    /*
+    특정 시점에서 캔버스의 현재 상태를 저장함
+    (globalAlpha가 0.2가 되기 전 상태를 저장)
+    */
+    c.save();
+    c.globalAlpha = this.opacity;
+    c.fillStyle = this.color;
+    c.fill();
+    // 저장되었던 상태를 불러옴 (globalAlpha에 알파 값이 적용되기 전 상태)
+    c.restore();
+    c.strokeStyle = this.color;
     c.stroke();
     c.closePath()
   }
@@ -119,6 +130,18 @@ class Particle {
     if(this.x - this.radius <= 0 || this.x + this.radius >= innerWidth) this.velocity.x *= -1;
     if(this.y - this.radius <= 0 || this.y + this.radius >= innerHeight) this.velocity.y *= -1;
 
+    // 마우스 충돌 감지
+    if(distance(mouse.x, mouse.y, this.x, this.y) < 100 && this.opacity < 0.6) this.opacity += 0.06;
+    else if(this.opacity > 0) {
+      this.opacity -= 0.06;
+
+      /*
+      부동소수점 문제를 해결하기 위해 Math.max함수로
+      this.opacity값이 0보다 작을 경우 최대값을 0으로 맞춤
+      */
+      this.opacity = Math.max(0, this.opacity);
+    }
+
     this.x += this.velocity.x;
     this.y += this.velocity.y;
   }
@@ -128,11 +151,11 @@ class Particle {
 let particles;
 function init() {
   particles = [];
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 250; i++) {
     const radius = 15;
     let x = randomIntFromRange(radius, canvas.width - radius);
     let y = randomIntFromRange(radius, canvas.height - radius);
-    const color = 'blue'
+    const color = randomColor(colors);
 
     if(i !== 0){
       for (let j = 0; j < particles.length; j++) {
