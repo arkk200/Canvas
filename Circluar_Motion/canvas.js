@@ -40,12 +40,17 @@ function distance(x1, y1, x2, y2) {
 }
 
 // Objects
-class Object {
+class Particle {
   constructor(x, y, radius, color) {
     this.x = x;
+    this.fixedX = x;
     this.y = y;
+    this.fixedY = y;
     this.radius = radius;
     this.color = color;
+    this.radians = Math.random() * Math.PI * 2;
+    this.velocity = 0.05;
+    this.distanceFromCenter = randomIntFromRange(50, 120);
   }
 
   draw() {
@@ -57,17 +62,31 @@ class Object {
   }
 
   update() {
+    // Move points over time
+    this.radians += this.velocity;
+    this.x = this.fixedX + Math.cos(this.radians) * this.distanceFromCenter;
+    this.y = this.fixedY + Math.sin(this.radians) * this.distanceFromCenter;
     this.draw();
   }
 }
 
 // Implementation
+let particles;
 function init() {
+  particles = [];
+  for(let i = 0; i < 50; i++){
+    particles.push(new Particle(canvas.width/2, canvas.height/2, 5, 'blue'));
+  }
 }
+
 // Animation Loop
 function animate() {
   requestAnimationFrame(animate);
-  c.clearRect(0, 0, canvas.width, canvas.height);
+  c.fillStyle = "rgba(255, 255, 255, 0.2)";
+  c.fillRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(particle => {
+    particle.update();
+  })
 }
 
 init();
