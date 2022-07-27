@@ -349,11 +349,12 @@ function distance(x1, y1, x2, y2) {
 
 // Objects
 class Circle {
-  constructor(x, y, radius, color) {
+  constructor(x, y, radius, color, offset) {
     this.x = x;
     this.y = y;
     this.radius = radius;
     this.color = color;
+    this.offset = offset;
   }
 
   draw() {
@@ -369,10 +370,36 @@ class Circle {
   }
 }
 
+const circle = new Circle(canvas.width / 2, canvas.height / 2, 10, 'blue');
+
+const circles = [];
+
+for(let i = 0; i < 100; i++)
+  circles.push(new Circle(-30,
+  -30, 10 * Math.random(), `hsl(${Math.random() * 255}, 100%, 50%)`, i / 150));
+
+let timer = 0;
+let clearOnce = true;
+
 // Animation Loop
 function animate() {
   requestAnimationFrame(animate);
-  c.clearRect(0, 0, canvas.width, canvas.height);
+  c.fillStyle = 'rgba(0, 0, 0, 0.01)'
+  c.fillRect(0, 0, canvas.width, canvas.height);
+  circles.forEach(circle => {
+    circle.draw();
+    // 대각선으로만 움직이는 것을 막기 위해 circle.x의 노이즈 값에 20정도 오프셋을 줌
+    circle.x = noise(timer + circle.offset + 20) * canvas.width;
+    circle.y = noise(timer + circle.offset) * canvas.height;
+  });
+  /*
+  noise함수는 랜덤 값을 반환하지만
+  이전 값에 영향을 받는 랜덤값을 반환한다.
+  noise함수 안에 들어가는 값의 변화가 크면 클수록
+  noise함수가 반환하는 값의 변동의 크다 
+  */
+  // console.log(noise(timer));
+  timer += 0.005;
 }
 
 animate();
