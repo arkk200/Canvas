@@ -1,6 +1,3 @@
-// import gsap from "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js";
-import {gsap} from "gsap";
-
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
@@ -19,17 +16,12 @@ const center = {
 
 let angle = 0;
 
-
-
 const colors = ['#2185C5', '#7ECEFD', '#FFF6E5', '#FF7F66'];
 
 // Event Listeners
 addEventListener('mousemove', (event) => {
-  gsap.to(mouse, {
-    x: event.clientX - canvas.width / 2,
-    y: event.clientY - canvas.height / 2,
-    duration: 1
-  })
+  mouse.x = event.clientX - canvas.width / 2;
+  mouse.y = event.clientY - canvas.height / 2;
   angle = Math.atan2(mouse.y, mouse.x);
 });
 
