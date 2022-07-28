@@ -5,7 +5,7 @@ Basic Game Checklist:
 - Create enemies 적 생성하기 V
 - Detect collision on enemy / projectile hit 적, 발사체 충돌 감지하기 V
 - Detect collision on enemy / player hit 적, 플레이어 충돌 감지하기 V
-- Remove off screen projectiles 스크린에서 벗어난 발사체 삭제하기
+- Remove off screen projectiles 스크린에서 벗어난 발사체 삭제하기 V
 - Colorize game 색 입히기
 - Shrink enemies on hit 맞힌 적 수축하기
 - Create particle explosion on hit 맞았을 때 터지는 파티클 생성하기
@@ -120,8 +120,17 @@ function animate() {
     animationId = requestAnimationFrame(animate);
     c.clearRect(0, 0, canvas.width, canvas.height);
     player.draw();
-    projectiles.forEach(projectile => {
+    projectiles.forEach((projectile, index) => {
         projectile.update();
+
+        if (projectile.x + projectile.radius < 0 ||
+            projectile.x - projectile.radius > canvas.width ||
+            projectile.y + projectile.radius < 0 ||
+            projectile.y - projectile.radius > canvas.height) {
+            setTimeout(() => {
+                projectiles.splice(index, 1);
+            }, 0)
+        }
     });
 
     enemies.forEach((enemy, index) => {
