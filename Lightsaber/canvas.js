@@ -5,8 +5,8 @@ canvas.width = innerWidth;
 canvas.height = innerHeight;
 
 const mouse = {
-  x: innerWidth / 2,
-  y: innerHeight / 2
+  x: -1,
+  y: 0
 };
 
 const center = {
@@ -48,13 +48,12 @@ function distance(x1, y1, x2, y2) {
 
 // Objects
 class Particle {
-  constructor(x, y, radius, color, distanceFromCenter) {
+  constructor(x, y, radius, color, distFromCenter) {
     this.x = x;
     this.y = y;
     this.radius = radius;
     this.color = color;
-    this.distanceFromCenter = distanceFromCenter;
-    this.lastMouse = {x: x, y: y};
+    this.distFromCenter = distFromCenter;
   }
 
   draw() {
@@ -65,16 +64,16 @@ class Particle {
     c.closePath();
   }
 
-  update() {
-    this.draw();
-    
-    this.lastMouse.x += (mouse.x - this.lastMouse.x) * 0.01;
-    this.lastMouse.y += (mouse.y - this.lastMouse.y) * 0.01;
-    
+  update(timer) {
     angle = Math.atan2(mouse.y, mouse.x);
 
-    this.x = center.x + this.distanceFromCenter * Math.cos(angle);
-    this.y = center.y + this.distanceFromCenter * Math.sin(angle);
+    const { cos, sin } = Math;
+    const { distFromCenter } = this;
+    
+    this.x = center.x + distFromCenter * cos(angle) * sin(timer + distFromCenter);
+    this.y = center.y + distFromCenter * sin(angle) * cos(timer + distFromCenter);
+    
+    this.draw();
   }
 }
 
@@ -86,24 +85,28 @@ function init() {
   const particleCount = 200;
   const hueIncrement = 360 / particleCount;
 
-  const baseRadius = 30;
+  const baseRadius = 130;
   const radiusIncrement = baseRadius / particleCount
   for(let i = 0; i < particleCount; i++){
-    const x = canvas.width / 2 + i * Math.cos(Math.PI);
-    const y = canvas.height / 2 + i * Math.sin(-Math.PI);
+    const x = canvas.width / 2 + i;
+    const y = canvas.height / 2 + i;
 
     particles.push(new Particle(x, y, baseRadius - radiusIncrement * i, `hsl(${i * hueIncrement}, 50%, 50%)`, i));
   }
 }
+
 // Animation Loop
+let timer = 0;
 function animate() {
   requestAnimationFrame(animate);
   c.fillStyle = "rgba(0, 0, 0, 0.05)";
   c.fillRect(0, 0, canvas.width, canvas.height);
 
   particles.forEach(particle => {
-    particle.update();
+    particle.update(timer);
   });
+
+  timer += 0.001;
 }
 
 init();
