@@ -6,7 +6,7 @@ Basic Game Checklist:
 - Detect collision on enemy / projectile hit 적, 발사체 충돌 감지하기 V
 - Detect collision on enemy / player hit 적, 플레이어 충돌 감지하기 V
 - Remove off screen projectiles 스크린에서 벗어난 발사체 삭제하기 V
-- Colorize game 색 입히기
+- Colorize game 색 입히기 V
 - Shrink enemies on hit 맞힌 적 수축하기
 - Create particle explosion on hit 맞았을 때 터지는 파티클 생성하기
 - Add score 점수 추가하기
@@ -84,7 +84,7 @@ class Enemy {
 const x = canvas.width / 2;
 const y = canvas.height / 2;
 
-const player = new Player(x, y, 30, 'blue');
+const player = new Player(x, y, 10, 'white');
 const projectiles = []; // 발사체 그룹
 const enemies = []; // 적 그룹
 
@@ -102,7 +102,7 @@ function spawnEnemies() {
             x = Math.random() * canvas.width;
             y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius;
         }
-        const color = 'green';
+        const color = `hsl(${Math.random() * 360}, 50%, 50%)`;
         const angle = Math.atan2(
             canvas.height / 2 - y,
             canvas.width / 2 - x
@@ -118,7 +118,8 @@ function spawnEnemies() {
 let animationId;
 function animate() {
     animationId = requestAnimationFrame(animate);
-    c.clearRect(0, 0, canvas.width, canvas.height);
+    c.fillStyle = 'rgba(0, 0, 0, 0.1)';
+    c.fillRect(0, 0, canvas.width, canvas.height);
     player.draw();
     projectiles.forEach((projectile, index) => {
         projectile.update();
@@ -166,14 +167,14 @@ addEventListener('click', event => {
         event.clientX - canvas.width / 2
     );
     const velocity = {
-        x: Math.cos(angle),
-        y: Math.sin(angle)
+        x: Math.cos(angle) * 6,
+        y: Math.sin(angle) * 6
     };
     projectiles.push(new Projectile(
             canvas.width / 2,
             canvas.height / 2,
             5,
-            'red',
+            'white',
             {
                 x: velocity.x,
                 y: velocity.y
