@@ -3,7 +3,7 @@ Basic Game Checklist:
 - Create a player 플레이어 생성하기 V
 - Shoot projectiles 발사체 생성 및 쏘기 V
 - Create enemies 적 생성하기 V
-- Detect collision on enemy / projectile hit 적, 발사체 충돌 감지하기
+- Detect collision on enemy / projectile hit 적, 발사체 충돌 감지하기 V
 - Detect collision on enemy / player hit 적, 플레이어 충돌 감지하기
 - Remove off screen projectiles 스크린에서 벗어난 발사체 삭제하기
 - Colorize game 색 입히기
@@ -123,8 +123,24 @@ function animate() {
         projectile.update();
     });
 
-    enemies.forEach(enemy => {
+    enemies.forEach((enemy, index) => {
         enemy.update();
+        projectiles.forEach((projectile, projectileIndex) => {
+            const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
+
+            // objects touch
+            if(dist - enemy.radius - projectile.radius <= 0){
+                /*
+                    마지막 인수가 제거 되었는데도
+                    그릴려고 하는 것 때문에 발생하는 플래시 현상을
+                    setTimeout 비동기 함수로 제거함
+                */
+                setTimeout(() => {
+                    enemies.splice(index, 1);
+                    projectiles.splice(projectileIndex, 1);
+                }, 0)
+            }
+        });
     })
 }
 
