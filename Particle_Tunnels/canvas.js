@@ -21,7 +21,7 @@ addEventListener('resize', () => {
   canvas.width = innerWidth;
   canvas.height = innerHeight;
 
-  init();
+  generateRing();
 });
 
 function randomIntFromRange(min, max) {
@@ -40,12 +40,14 @@ function distance(x1, y1, x2, y2) {
 }
 
 // Objects
-class Objects {
-  constructor(x, y, radius, color) {
+class Particle {
+  constructor(x, y, radius, color, velocity) {
     this.x = x;
     this.y = y;
     this.radius = radius;
     this.color = color;
+    this.velocity = velocity;
+    this.ttl = 500; // time to live, 캔버스에 너무 많은 입자가 생기지 않도록 수명을 부여함
   }
 
   draw() {
@@ -58,22 +60,39 @@ class Objects {
 
   update() {
     this.draw();
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
+    this.ttl--;
   }
 }
 
-// Implementation
-let objects;
-function init() {
-  objects = [];
-
-  for(let i = 0; i < 400; i++){
+let hue = 0;
+let hueRadians = 0;
+let particles = [];
+const radian = Math.PI * 2 / 30;
+function generateRing() {
+  setTimeout(generateRing, 300);
+  hue = Math.sin(hueRadians);
+  for(let i = 0; i < 30; i++){
+    const [x, y] = [mouse.x,
+                    mouse.y];
+    particles.push(new Particle(x, y, 5, `hsl(${hue * 360}, 50%, 50%)`, {
+      x: + Math.cos(radian * i) * 2,
+      y: + Math.sin(radian * i) * 2
+    }));
   }
+  hueRadians += 0.01;
 }
+
 // Animation Loop
 function animate() {
   requestAnimationFrame(animate);
-  c.clearRect(0, 0, canvas.width, canvas.height);
+  c.fillStyle = 'rgba(0, 0, 0, 0.1)';
+  c.fillRect(0, 0, canvas.width, canvas.height);
+  particles.forEach((particle, index) => {
+    if (particle.ttl < 0) particles.splice(index, 1);
+    else particle.update();
+  })
 }
-
-init();
 animate();
+generateRing();
