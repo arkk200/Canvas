@@ -86,12 +86,13 @@ function init() {
   const particleCount = 200;
   const hueIncrement = 360 / particleCount;
 
-  const radiusIncrement = 30 / particleCount
+  const baseRadius = 30;
+  const radiusIncrement = baseRadius / particleCount
   for(let i = 0; i < particleCount; i++){
     const x = canvas.width / 2 + i * Math.cos(Math.PI);
     const y = canvas.height / 2 + i * Math.sin(-Math.PI);
 
-    particles.push(new Particle(x, y, radiusIncrement * i, `hsl(${i * hueIncrement}, 50%, 50%)`, i));
+    particles.push(new Particle(x, y, baseRadius - radiusIncrement * i, `hsl(${i * hueIncrement}, 50%, 50%)`, i));
   }
 }
 // Animation Loop
