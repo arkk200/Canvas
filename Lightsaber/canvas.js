@@ -22,7 +22,6 @@ const colors = ['#2185C5', '#7ECEFD', '#FFF6E5', '#FF7F66'];
 addEventListener('mousemove', (event) => {
   mouse.x = event.clientX - canvas.width / 2;
   mouse.y = event.clientY - canvas.height / 2;
-  angle = Math.atan2(mouse.y, mouse.x);
 });
 
 addEventListener('resize', () => {
@@ -55,6 +54,7 @@ class Particle {
     this.radius = radius;
     this.color = color;
     this.distanceFromCenter = distanceFromCenter;
+    this.lastMouse = {x: x, y: y};
   }
 
   draw() {
@@ -67,6 +67,12 @@ class Particle {
 
   update() {
     this.draw();
+    
+    this.lastMouse.x += (mouse.x - this.lastMouse.x) * 0.01;
+    this.lastMouse.y += (mouse.y - this.lastMouse.y) * 0.01;
+    
+    angle = Math.atan2(mouse.y, mouse.x);
+
     this.x = center.x + this.distanceFromCenter * Math.cos(angle);
     this.y = center.y + this.distanceFromCenter * Math.sin(angle);
   }
@@ -80,11 +86,12 @@ function init() {
   const particleCount = 200;
   const hueIncrement = 360 / particleCount;
 
+  const radiusIncrement = 30 / particleCount
   for(let i = 0; i < particleCount; i++){
     const x = canvas.width / 2 + i * Math.cos(Math.PI);
     const y = canvas.height / 2 + i * Math.sin(-Math.PI);
 
-    particles.push(new Particle(x, y, 5, `hsl(${i * hueIncrement}, 50%, 50%)`, i));
+    particles.push(new Particle(x, y, radiusIncrement * i, `hsl(${i * hueIncrement}, 50%, 50%)`, i));
   }
 }
 // Animation Loop
