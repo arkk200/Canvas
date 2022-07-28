@@ -70,8 +70,8 @@ class Particle {
     const { cos, sin } = Math;
     const { distFromCenter } = this;
     
-    this.x = center.x + distFromCenter * cos(angle) * sin(timer + distFromCenter);
-    this.y = center.y + distFromCenter * sin(angle) * cos(timer + distFromCenter);
+    this.x = center.x + distFromCenter * cos(-angle) * sin(timer + distFromCenter) * cos(timer + distFromCenter) * 2;
+    this.y = center.y + distFromCenter * sin(-angle) * cos(timer + distFromCenter) * cos(timer) * 2;
     
     this.draw();
   }
@@ -85,7 +85,7 @@ function init() {
   const particleCount = 200;
   const hueIncrement = 360 / particleCount;
 
-  const baseRadius = 130;
+  const baseRadius = 3;
   const radiusIncrement = baseRadius / particleCount
   for(let i = 0; i < particleCount; i++){
     const x = canvas.width / 2 + i;
@@ -106,7 +106,7 @@ function animate() {
     particle.update(timer);
   });
 
-  timer += 0.001;
+  timer += 0.004;
 }
 
 init();
