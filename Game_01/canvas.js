@@ -12,7 +12,7 @@ Basic Game Checklist:
 - Add score 점수 추가하기 V
 - Add start game button 게임 시작 버튼 추가하기 V
 - Add game over UI 게임 오버 UI 추가하기 V
-- Add restart button 재시작 버튼 추가하기
+- Add restart button 재시작 버튼 추가하기 V
 */
 
 const canvas = document.querySelector('canvas');
@@ -119,10 +119,20 @@ class Particle {
 const x = canvas.width / 2;
 const y = canvas.height / 2;
 
-const player = new Player(x, y, 10, 'white'); // 플레이어
-const projectiles = []; // 발사체 그룹
-const enemies = []; // 적 그룹
-const particles = []; // 파티클 그룹
+let player = new Player(x, y, 10, 'white'); // 플레이어
+let projectiles = []; // 발사체 그룹
+let enemies = []; // 적 그룹
+let particles = []; // 파티클 그룹
+
+function init() { // 초기화
+    player = new Player(x, y, 10, 'white'); // 플레이어
+    projectiles = []; // 발사체 그룹
+    enemies = []; // 적 그룹
+    particles = []; // 파티클 그룹
+    score = 0;
+    $scoreEl.textContent = score;
+    $bigScoreEl.textContent = score;
+}
 
 function spawnEnemies() {
     setInterval(() => {
@@ -232,9 +242,11 @@ function animate() {
 }
 
 $startGameBtn.addEventListener('click', () => {
+    init();
     animate();
     spawnEnemies();
     $modalEl.style.display = 'none';
+    $startGameBtn.textContent = 'Restart Game'
     // 화면을 클릭했다면
     setTimeout(() => { // 게임 시작 버튼을 눌렀을 때 발사체가 나가는 것을 방지
         addEventListener('click', event => {
@@ -255,8 +267,7 @@ $startGameBtn.addEventListener('click', () => {
                     x: velocity.x,
                     y: velocity.y
                 }
-            )
-            );
+            ));
         });
     }, 0);
 });
