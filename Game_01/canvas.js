@@ -1,3 +1,4 @@
+console.log(gsap);
 /*
 Basic Game Checklist:
 - Create a player 플레이어 생성하기 V
@@ -145,17 +146,24 @@ function animate() {
         projectiles.forEach((projectile, projectileIndex) => {
             const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
 
-            // objects touch
+            // when projectiles touch enemy
             if(dist - enemy.radius - projectile.radius < 0){
                 /*
                     마지막 인수가 제거 되었는데도
                     그릴려고 하는 것 때문에 발생하는 플래시 현상을
                     setTimeout 비동기 함수로 제거함
                 */
+               if(enemy.radius - 10 > 10){
+                enemy.radius -= 10;
+                setTimeout(() => {
+                    projectiles.splice(projectileIndex, 1);
+                }, 0);
+               } else {
                 setTimeout(() => {
                     enemies.splice(index, 1);
                     projectiles.splice(projectileIndex, 1);
-                }, 0)
+                }, 0);
+               }
             }
         });
     })
