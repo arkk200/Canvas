@@ -10,9 +10,9 @@ Basic Game Checklist:
 - Shrink enemies on hit 맞힌 적 수축하기 V
 - Create particle explosion on hit 맞았을 때 터지는 파티클 생성하기 V
 - Add score 점수 추가하기 V
+- Add start game button 게임 시작 버튼 추가하기 V
 - Add game over UI 게임 오버 UI 추가하기
 - Add restart button 재시작 버튼 추가하기
-- Add start game button 게임 시작 버튼 추가하기
 */
 
 const canvas = document.querySelector('canvas');
@@ -21,6 +21,8 @@ canvas.width = innerWidth;
 canvas.height = innerHeight;
 
 const $scoreEl = document.querySelector('#scoreEl');
+const $startGameBtn = document.querySelector('#startGameBtn');
+const $modalEl = document.querySelector('#modalEl');
 
 const c = canvas.getContext('2d');
 
@@ -226,28 +228,32 @@ function animate() {
     })
 }
 
-// 화면을 클릭했다면
-addEventListener('click', event => {
-    const angle = Math.atan2( // 화면 중심에서 클릭한 위치까지의 각도 (라디안)
-        event.clientY - canvas.height / 2,
-        event.clientX - canvas.width / 2
-    );
-    const velocity = {
-        x: Math.cos(angle) * 6, // 나온 각도만큼의 x축 속도
-        y: Math.sin(angle) * 6 // 나온 각도만큼의 y축 속도
-    };
-    projectiles.push(new Projectile( // 배열에 발사체 추가
-        canvas.width / 2,
-        canvas.height / 2,
-        5,
-        'white',
-        {
-            x: velocity.x,
-            y: velocity.y
-        }
-    )
-    );
+$startGameBtn.addEventListener('click', () => {
+    animate();
+    spawnEnemies();
+    $modalEl.style.display = 'none';
+    // 화면을 클릭했다면
+    setTimeout(() => { // 게임 시작 버튼을 눌렀을 때 발사체가 나가는 것을 방지
+        addEventListener('click', event => {
+            const angle = Math.atan2( // 화면 중심에서 클릭한 위치까지의 각도 (라디안)
+                event.clientY - canvas.height / 2,
+                event.clientX - canvas.width / 2
+            );
+            const velocity = {
+                x: Math.cos(angle) * 6, // 나온 각도만큼의 x축 속도
+                y: Math.sin(angle) * 6 // 나온 각도만큼의 y축 속도
+            };
+            projectiles.push(new Projectile( // 배열에 발사체 추가
+                canvas.width / 2,
+                canvas.height / 2,
+                5,
+                'white',
+                {
+                    x: velocity.x,
+                    y: velocity.y
+                }
+            )
+            );
+        });
+    }, 0);
 });
-
-animate();
-spawnEnemies();
