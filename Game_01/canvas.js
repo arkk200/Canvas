@@ -1,4 +1,3 @@
-console.log(gsap);
 /*
 Basic Game Checklist:
 - Create a player 플레이어 생성하기 V
@@ -8,7 +7,7 @@ Basic Game Checklist:
 - Detect collision on enemy / player hit 적, 플레이어 충돌 감지하기 V
 - Remove off screen projectiles 스크린에서 벗어난 발사체 삭제하기 V
 - Colorize game 색 입히기 V
-- Shrink enemies on hit 맞힌 적 수축하기
+- Shrink enemies on hit 맞힌 적 수축하기 V
 - Create particle explosion on hit 맞았을 때 터지는 파티클 생성하기
 - Add score 점수 추가하기
 - Add game over UI 게임 오버 UI 추가하기
@@ -153,8 +152,10 @@ function animate() {
                     그릴려고 하는 것 때문에 발생하는 플래시 현상을
                     setTimeout 비동기 함수로 제거함
                 */
-               if(enemy.radius - 10 > 10){
-                enemy.radius -= 10;
+               if(enemy.radius - 10 > 5){
+                gsap.to(enemy, {
+                    radius: enemy.radius - 10
+                });
                 setTimeout(() => {
                     projectiles.splice(projectileIndex, 1);
                 }, 0);
