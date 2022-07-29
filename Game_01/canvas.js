@@ -11,7 +11,7 @@ Basic Game Checklist:
 - Create particle explosion on hit 맞았을 때 터지는 파티클 생성하기 V
 - Add score 점수 추가하기 V
 - Add start game button 게임 시작 버튼 추가하기 V
-- Add game over UI 게임 오버 UI 추가하기
+- Add game over UI 게임 오버 UI 추가하기 V
 - Add restart button 재시작 버튼 추가하기
 */
 
@@ -23,6 +23,7 @@ canvas.height = innerHeight;
 const $scoreEl = document.querySelector('#scoreEl');
 const $startGameBtn = document.querySelector('#startGameBtn');
 const $modalEl = document.querySelector('#modalEl');
+const $bigScoreEl = document.querySelector('#bigScoreEl');
 
 const c = canvas.getContext('2d');
 
@@ -183,6 +184,8 @@ function animate() {
         const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
         if (dist - enemy.radius - player.radius < 0) { // 적과 플레이어가 충돌했다면
             cancelAnimationFrame(animationId); // 애니메이션 멈추기 (게임 멈추기)
+            $modalEl.style.display = 'flex';
+            $bigScoreEl.textContent = score;
         }
 
         projectiles.forEach((projectile, projectileIndex) => { // 발사체 배열에서 하나씩 검사
