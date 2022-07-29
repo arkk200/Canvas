@@ -9,7 +9,7 @@ Basic Game Checklist:
 - Colorize game 색 입히기 V
 - Shrink enemies on hit 맞힌 적 수축하기 V
 - Create particle explosion on hit 맞았을 때 터지는 파티클 생성하기 V
-- Add score 점수 추가하기
+- Add score 점수 추가하기 V
 - Add game over UI 게임 오버 UI 추가하기
 - Add restart button 재시작 버튼 추가하기
 - Add start game button 게임 시작 버튼 추가하기
@@ -19,6 +19,8 @@ const canvas = document.querySelector('canvas');
 
 canvas.width = innerWidth;
 canvas.height = innerHeight;
+
+const $scoreEl = document.querySelector('#scoreEl');
 
 const c = canvas.getContext('2d');
 
@@ -114,10 +116,10 @@ class Particle {
 const x = canvas.width / 2;
 const y = canvas.height / 2;
 
-const player = new Player(x, y, 10, 'white');
+const player = new Player(x, y, 10, 'white'); // 플레이어
 const projectiles = []; // 발사체 그룹
 const enemies = []; // 적 그룹
-const particles = [];
+const particles = []; // 파티클 그룹
 
 function spawnEnemies() {
     setInterval(() => {
@@ -126,66 +128,67 @@ function spawnEnemies() {
         let x;
         let y;
 
-        if (Math.random() < 0.5) {
+        if (Math.random() < 0.5) { // 양 끝에서 적 생성
             x = Math.random() < 0.5 ? 0 - radius : canvas.width + radius;
-            y = Math.random() * canvas.height;
-        } else {
-            x = Math.random() * canvas.width;
+            y = Math.random() * canvas.height; // 나오는 적의 y축은 무작위
+        } else { // 위 아래에 적 생성
+            x = Math.random() * canvas.width; // 나오는 적의 x축은 무작위
             y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius;
         }
-        const color = `hsl(${Math.random() * 360}, 50%, 50%)`;
-        const angle = Math.atan2(
-            canvas.height / 2 - y,
-            canvas.width / 2 - x
+        const color = `hsl(${Math.random() * 360}, 50%, 50%)`; // 무작위 색 생성
+        const angle = Math.atan2( // y축, x축에 따라 나온 각도
+            canvas.height / 2 - y, // 나오는 위치에서 중심까지의 y축 거리 (플레이어까지의 y축 거리)
+            canvas.width / 2 - x // 나오는 위치에서 중심까지의 x축 거리 (플레이어까지의 x축 거리)
         );
         const velocity = {
-            x: Math.cos(angle),
-            y: Math.sin(angle)
+            x: Math.cos(angle), // 나온 각도만큼의 x축 속도
+            y: Math.sin(angle) // 나온 각도만큼의 y축 속도
         };
-        enemies.push(new Enemy(x, y, radius, color, velocity));
-    }, 1000);
+        enemies.push(new Enemy(x, y, radius, color, velocity)); // 적 배열에 추가
+    }, 1000); // 1초 마다 실행
 }
 
 let animationId;
+let score = 0;
 function animate() {
     animationId = requestAnimationFrame(animate);
     c.fillStyle = 'rgba(0, 0, 0, 0.1)';
     c.fillRect(0, 0, canvas.width, canvas.height);
     player.draw();
-    particles.forEach((particle, index) => {
-        if(particle.alpha <= 0) {
-            particles.splice(index, 1);
+    particles.forEach((particle, index) => { // 모든 파티클 업데이트
+        if(particle.alpha <= 0) { // 파티클의 알파값이 0보다 같거나 작다면
+            particles.splice(index, 1); // 파티클 배열에서 제거
             return;
         }
-        particle.update();
+        particle.update(); // 배열에 존재한다면 생성
     })
     projectiles.forEach((projectile, index) => {
-        projectile.update();
+        projectile.update(); // 배열에 존재한다면 생성
 
-        if (projectile.x + projectile.radius < 0 ||
+        if (projectile.x + projectile.radius < 0 || // 발사체가 화면 밖으로 나간다면
             projectile.x - projectile.radius > canvas.width ||
             projectile.y + projectile.radius < 0 ||
             projectile.y - projectile.radius > canvas.height) {
             setTimeout(() => {
-                projectiles.splice(index, 1);
+                projectiles.splice(index, 1); // 발사체 배열에서 제거
             }, 0)
         }
     });
 
-    enemies.forEach((enemy, index) => {
-        enemy.update();
+    enemies.forEach((enemy, index) => { // 적 배열에서 하나씩 검사
+        enemy.update(); // 배열에 존재한다면 생성
 
         const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
-        if (dist - enemy.radius - player.radius < 0) {
-            cancelAnimationFrame(animationId);
+        if (dist - enemy.radius - player.radius < 0) { // 적과 플레이어가 충돌했다면
+            cancelAnimationFrame(animationId); // 애니메이션 멈추기 (게임 멈추기)
         }
 
-        projectiles.forEach((projectile, projectileIndex) => {
+        projectiles.forEach((projectile, projectileIndex) => { // 발사체 배열에서 하나씩 검사
             const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
 
-            // when projectiles touch enemy
+            // 적과 발사체가 충돌한다면
             if (dist - enemy.radius - projectile.radius < 0) {
-                for (let i = 0; i < enemy.radius * 2; i++) {
+                for (let i = 0; i < enemy.radius * 2; i++) { // 적의 크기 만큼 파티클 생성
                     particles.push(new Particle(
                         projectile.x,
                         projectile.y,
@@ -202,34 +205,38 @@ function animate() {
                     그릴려고 하는 것 때문에 발생하는 플래시 현상을
                     setTimeout 비동기 함수로 제거함
                 */
-                if (enemy.radius - 10 > 5) {
+                if (enemy.radius - 10 > 5) { // 적의 반지름 최소 5 초과, 적의 반지름이 15보다 크다면
+                    score += 100;
                     gsap.to(enemy, {
-                        radius: enemy.radius - 10
+                        radius: enemy.radius - 10 // 적의 반지름 -= 10
                     });
                     setTimeout(() => {
-                        projectiles.splice(projectileIndex, 1);
+                        projectiles.splice(projectileIndex, 1); // 적과 발사체가 충돌했으므로 발사체는 제거
                     }, 0);
-                } else {
-                    setTimeout(() => {
-                        enemies.splice(index, 1);
-                        projectiles.splice(projectileIndex, 1);
+                } else { // 그렇지 않다면
+                    score += 250;
+                    setTimeout(() => { // 플래시 현상을 막기위해 비동기 함수 사용
+                        enemies.splice(index, 1); // 적 배열에서 제거
+                        projectiles.splice(projectileIndex, 1); // 발사체도 똑같이 발사체 배열에서 제거
                     }, 0);
                 }
+                $scoreEl.textContent = score;
             }
         });
     })
 }
 
+// 화면을 클릭했다면
 addEventListener('click', event => {
-    const angle = Math.atan2(
+    const angle = Math.atan2( // 화면 중심에서 클릭한 위치까지의 각도 (라디안)
         event.clientY - canvas.height / 2,
         event.clientX - canvas.width / 2
     );
     const velocity = {
-        x: Math.cos(angle) * 6,
-        y: Math.sin(angle) * 6
+        x: Math.cos(angle) * 6, // 나온 각도만큼의 x축 속도
+        y: Math.sin(angle) * 6 // 나온 각도만큼의 y축 속도
     };
-    projectiles.push(new Projectile(
+    projectiles.push(new Projectile( // 배열에 발사체 추가
         canvas.width / 2,
         canvas.height / 2,
         5,

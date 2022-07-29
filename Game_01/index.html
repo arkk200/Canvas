@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css">
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -5,10 +6,12 @@
     <title>Game 1</title>
     <style>
       body{ margin: 0; font-size: 0; }
+      .resize-font {font-size: 1rem;}
       ::-webkit-scrollbar{ display: none; }
     </style>
   </head>
   <body>
+    <div class="resize-font fixed text-white text-sm ml-2 mt-1 select-none">Score: <span id="scoreEl">0</span></div>
     <canvas></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js" integrity="sha512-VEBjfxWUOyzl0bAwh4gdLEaQyDYPvLrZql3pw1ifgb6fhEvZl9iDDehwHZ+dsMzA0Jfww8Xt7COSZuJ/slxc4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="./canvas.js" type="module"></script>
