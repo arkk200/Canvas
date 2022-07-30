@@ -365,60 +365,134 @@ function distance(x1, y1, x2, y2) {
 
 // Objects
 class Line {
-  constructor(x, y, radius, color, vector) {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.vector = { x: x, y: y};
+  }
+
+  draw() {
+    c.save()
+    c.beginPath();
+    c.globalAlpha = 0;
+    c.moveTo(this.x, this.y);
+    c.lineTo(this.x + this.vector.x, this.y + this.vector.y);
+    c.stroke();
+    c.closePath();
+    c.restore();
+  }
+
+  update() {
+    this.draw();
+  }
+}
+
+class Particle {
+  constructor(x, y, radius, color) {
     this.x = x;
     this.y = y;
     this.radius = radius;
     this.color = color;
-    this.vector = vector;
+    this.vector = { x: 0, y: 0 };
+    this.lifeTime = Math.random() * 100 + 5000;
+    this.prevPos;
   }
 
-  draw() {
+  draw({x, y}) {
+    // c.save();
+    c.globalAlpha = 0.1;
     c.beginPath();
-    c.moveTo(this.x, this.y);
-    c.lineTo(this.x + this.vector.x, this.y + this.vector.y);
+    c.moveTo(x, y);
+    c.lineTo(this.x, this.y);
+    c.stroke()
     c.strokeStyle = this.color;
-    c.stroke();
     c.closePath();
+    // c.restore();
   }
 
-  update(direction) {
-    this.vector = direction;
-    this.draw();
+  update() {
+    this.prevPos = {x: this.x, y: this.y };
+    this.x += this.vector.x;
+    this.y += this.vector.y;
+    this.draw(this.prevPos);
+    // this.lifeTime -= 0.01;
   }
 }
+
 // Implementation
 let lines;
 let rowLine;
-let lineLength = 15;
+let lineScale = 30;
+let lineLength = 0.01;
+let particleCount = 500;
+let particles = [];
+let isFixed = false;
 function init() {
   lines = [];
-  for(let x = 0; x < innerWidth; x += lineLength){
+  for(let x = 0; x < innerWidth; x += lineScale){
     rowLine = [];
-    for(let y = 0; y < innerHeight; y += lineLength){
-      rowLine.push(new Line(x, y, 2, 'black'));
+    for(let y = 0; y < innerHeight; y += lineScale){
+      rowLine.push(new Line(x, y));
     }
     if (x % 2 === 1) rowLine.reverse();
-    console.log(rowLine);
     lines.push(...rowLine);
   }
-  
+  particles = [];
+  for(let i = 0; i < particleCount; i++){
+    particles.push(new Particle(
+      innerWidth,
+      Math.random() * innerHeight,
+      2,
+      'hsl(0, 50%, 50%)'
+    ));
+  }
 }
+
+init();
+!isFixed || lines.forEach((line, index) => {
+  angle = noise(startIndex + index / 500 + timer) * Math.PI + Math.PI / 2;
+  line.vector = { x: Math.cos(angle) * lineLength, y: Math.sin(angle) * lineLength};
+  line.update();
+});
 
 // Animation Loop
 let timer = 0;
 let angle;
 let startIndex = Math.random() * 5;
-let randomFlowValue = 300;
 function animate() {
   requestAnimationFrame(animate);
-  c.clearRect(0, 0, canvas.width, canvas.height);
-  lines.forEach((line, index) => {
-    angle = noise(startIndex + index / 1000 + timer) * Math.PI + Math.PI / 2;
-    line.update({ x: Math.cos(angle) * lineLength, y: Math.sin(angle) * lineLength});
+  // c.fillStyle = "rgba(0, 0, 0, 0.1)";
+  // c.fillRect(0, 0, canvas.width, canvas.height);
+  isFixed || lines.forEach((line, index) => {
+    angle = noise(startIndex + line.x / 50 + line.y / 50 + timer) * Math.PI + Math.PI / 2;
+    line.vector = { x: Math.cos(angle) * lineLength, y: Math.sin(angle) * lineLength};
+    line.update();
+  });
+  particles.forEach((particle, index) => {
+    particle.update();
+    // line 검색
+    lines.forEach(line => {
+      let dist = Math.hypot(line.x - particle.x, line.y - particle.y);
+      // 가까운 line 검색
+      if(dist < lineScale){
+        gsap.to(particle.vector, {
+          x: particle.vector.x + line.vector.x * Math.random() * 3,
+          y: particle.vector.y + line.vector.y * Math.random() * 3
+        })
+      }
+    });
+    // 화면 밖으로 나간다면
+    if (particle.x < 0 || particle.x > canvas.width ||
+      particle.y < 0 || particle.y > canvas.height){
+      particles.splice(index, 1); // 삭제 후
+      particles.push(new Particle( // 생성
+        innerWidth,
+        Math.random() * innerHeight,
+        2,
+        `hsl(${timer * 10}, 50%, 50%)`
+      ));
+    }
   });
   timer += 0.005;
 }
-
-init();
 animate();
