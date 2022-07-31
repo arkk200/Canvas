@@ -424,7 +424,7 @@ let lines;
 let rowLine;
 let lineScale = 30;
 let lineLength = 0.01;
-let particleCount = 1000;
+let particleCount = 2000;
 let particles = [];
 let isFixed = false;
 function init() {
@@ -440,7 +440,7 @@ function init() {
   particles = [];
   for (let i = 0; i < particleCount; i++) {
     particles.push(new Particle(
-      innerWidth,
+      (Math.random() + 1) * innerWidth / 2,
       Math.random() * innerHeight,
       2,
       'hsl(0, 50%, 50%)'
@@ -472,7 +472,7 @@ function restart() {
     isLineCountFull = false;
     for (let i = 0; i < particleCount; i++) {
       particles.push(new Particle(
-        innerWidth,
+        (Math.random() + 1) * innerWidth / 2,
         Math.random() * innerHeight,
         2,
         'hsl(0, 50%, 50%)'
@@ -511,7 +511,7 @@ function animate() {
     }
   });
   timer += 0.005;
-  if (lineCount >= 1000) {
+  if (lineCount >= particleCount) {
     cancelAnimationFrame(animationId);
     addEventListener('click', restart);
   }
