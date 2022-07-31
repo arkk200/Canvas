@@ -487,7 +487,7 @@ function animate() {
   c.fillStyle = `rgba(0, 0, 0, ${isLineCountFull ? 1 : 0})`;
   c.fillRect(0, 0, canvas.width, canvas.height);
   isFixed || lines.forEach((line, index) => {
-    angle = noise(startIndex + line.x / 50 + line.y / 50 + timer) * Math.PI + Math.PI / 2;
+    angle = noise(startIndex + line.x / 50 + line.y / 50 + timer) * Math.PI + Math.PI / 8 * 5;
     line.vector = { x: Math.cos(angle) * lineLength, y: Math.sin(angle) * lineLength };
     line.update();
   });
@@ -499,8 +499,8 @@ function animate() {
       // 가까운 line 검색
       if (dist < lineScale) {
         gsap.to(particle.vector, {
-          x: line.vector.x * 500,
-          y: line.vector.y * 500
+          x: line.vector.x * 400,
+          y: line.vector.y * 400
         })
       }
     });
