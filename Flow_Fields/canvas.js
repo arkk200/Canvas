@@ -344,8 +344,8 @@ addEventListener('mousemove', (event) => {
 addEventListener('resize', () => {
   canvas.width = innerWidth;
   canvas.height = innerHeight;
-
   init();
+  animate();
 });
 
 function randomIntFromRange(min, max) {
@@ -368,7 +368,7 @@ class Line {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.vector = { x: x, y: y};
+    this.vector = { x: x, y: y };
   }
 
   draw() {
@@ -398,7 +398,7 @@ class Particle {
     this.prevPos;
   }
 
-  draw({x, y}) {
+  draw({ x, y }) {
     // c.save();
     c.globalAlpha = 0.1;
     c.beginPath();
@@ -411,7 +411,7 @@ class Particle {
   }
 
   update() {
-    this.prevPos = {x: this.x, y: this.y };
+    this.prevPos = { x: this.x, y: this.y };
     this.x += this.vector.x;
     this.y += this.vector.y;
     this.draw(this.prevPos);
@@ -424,21 +424,21 @@ let lines;
 let rowLine;
 let lineScale = 30;
 let lineLength = 0.01;
-let particleCount = 500;
+let particleCount = 1000;
 let particles = [];
 let isFixed = false;
 function init() {
   lines = [];
-  for(let x = 0; x < innerWidth; x += lineScale){
+  for (let x = 0; x < innerWidth; x += lineScale) {
     rowLine = [];
-    for(let y = 0; y < innerHeight; y += lineScale){
+    for (let y = 0; y < innerHeight; y += lineScale) {
       rowLine.push(new Line(x, y));
     }
     if (x % 2 === 1) rowLine.reverse();
     lines.push(...rowLine);
   }
   particles = [];
-  for(let i = 0; i < particleCount; i++){
+  for (let i = 0; i < particleCount; i++) {
     particles.push(new Particle(
       innerWidth,
       Math.random() * innerHeight,
@@ -449,9 +449,10 @@ function init() {
 }
 
 init();
+
 !isFixed || lines.forEach((line, index) => {
   angle = noise(startIndex + index / 500 + timer) * Math.PI + Math.PI / 2;
-  line.vector = { x: Math.cos(angle) * lineLength, y: Math.sin(angle) * lineLength};
+  line.vector = { x: Math.cos(angle) * lineLength, y: Math.sin(angle) * lineLength };
   line.update();
 });
 
@@ -459,13 +460,35 @@ init();
 let timer = 0;
 let angle;
 let startIndex = Math.random() * 5;
+let lineCount = 0;
+let isLineCountFull = false;
+let animationId;
+
+function restart() {
+  removeEventListener('click', restart);
+  lineCount = 0;
+  isLineCountFull = true;
+  setTimeout(() => {
+    isLineCountFull = false;
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle(
+        innerWidth,
+        Math.random() * innerHeight,
+        2,
+        'hsl(0, 50%, 50%)'
+      ));
+    }
+  }, 1000);
+  animate();
+}
+
 function animate() {
-  requestAnimationFrame(animate);
-  // c.fillStyle = "rgba(0, 0, 0, 0.1)";
-  // c.fillRect(0, 0, canvas.width, canvas.height);
+  animationId = requestAnimationFrame(animate);
+  c.fillStyle = `rgba(0, 0, 0, ${isLineCountFull ? 1 : 0})`;
+  c.fillRect(0, 0, canvas.width, canvas.height);
   isFixed || lines.forEach((line, index) => {
     angle = noise(startIndex + line.x / 50 + line.y / 50 + timer) * Math.PI + Math.PI / 2;
-    line.vector = { x: Math.cos(angle) * lineLength, y: Math.sin(angle) * lineLength};
+    line.vector = { x: Math.cos(angle) * lineLength, y: Math.sin(angle) * lineLength };
     line.update();
   });
   particles.forEach((particle, index) => {
@@ -474,25 +497,23 @@ function animate() {
     lines.forEach(line => {
       let dist = Math.hypot(line.x - particle.x, line.y - particle.y);
       // 가까운 line 검색
-      if(dist < lineScale){
+      if (dist < lineScale) {
         gsap.to(particle.vector, {
-          x: particle.vector.x + line.vector.x * Math.random() * 3,
-          y: particle.vector.y + line.vector.y * Math.random() * 3
+          x: line.vector.x * 500,
+          y: line.vector.y * 500
         })
       }
     });
     // 화면 밖으로 나간다면
-    if (particle.x < 0 || particle.x > canvas.width ||
-      particle.y < 0 || particle.y > canvas.height){
+    if (particle.x < 0 || particle.y < 0 || particle.y > canvas.height) {
       particles.splice(index, 1); // 삭제 후
-      particles.push(new Particle( // 생성
-        innerWidth,
-        Math.random() * innerHeight,
-        2,
-        `hsl(${timer * 10}, 50%, 50%)`
-      ));
+      lineCount++;
     }
   });
   timer += 0.005;
+  if (lineCount >= 1000) {
+    cancelAnimationFrame(animationId);
+    addEventListener('click', restart);
+  }
 }
 animate();
